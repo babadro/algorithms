@@ -37,21 +37,45 @@ namespace _03_1_Flight_Tickets
             }
 
             var find = false;
-            var q = new Queue<string>();
+            var airportQueue = new Queue<string>();
             var costQueue = new Queue<int>();
 
-            q.Enqueue(source);
+            airportQueue.Enqueue(source);
             costQueue.Enqueue(0);
             int stops = -1;
 
-            while (q.Count != 0)
+            while (airportQueue.Count != 0)
             {
                 stops++;
                 if (stops > k + 1)
                     break;
 
-                int qSize = q.Count;
+                int qSize = airportQueue.Count;
+                for (int i = 0; i < qSize; i++)
+                {
+                    Flight curr = nodes[airportQueue.Dequeue()];
+                    int currCost = costQueue.Dequeue();
+                    curr.MinCost = Math.Min(curr.MinCost, currCost);
+
+                    if (curr.Name.Equals(target))
+                    {
+                        find = true;
+                        continue;
+                    }
+
+                    foreach (var next in curr.NextNodes.Keys)
+                    {
+                        int nextCost = currCost + curr.NextNodes[next];
+                        if (nextCost < nodes[next].MinCost && (stops < k || stops == k && next.Equals(target)))
+                        {
+                            airportQueue.Enqueue(next);
+                            costQueue.Enqueue(nextCost);
+                        }
+                    }
+                }
             }
+
+            return find ? nodes[target].MinCost : -1;
         }
     }
 }
